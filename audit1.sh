@@ -1,8 +1,41 @@
 #!/bin/bash
 
+# remote repository location URL
+SCRIPT_URL='https://raw.githubusercontent.com/anuja-mohalkar/AudIT/main/audit1.sh'
+
+# Local file name which is installed on machine
+SCRIPT_LOCATION="${BASH_SOURCE[@]}"
+
+# Cheksum for local file using md5sum algorithm
+Cheksum_Of_Local_File=$(md5sum "$SCRIPT_LOCATION" | awk '{print $1}')
+
+# printing cheksum value of local file
+# echo "$Cheksum_Of_Local_File"
+
+# Local script path from machine
+ABS_SCRIPT_PATH=$(readlink -f "$SCRIPT_LOCATION")
+
+# Creating empty temporary file
+TMP_FILE=$(mktemp -p "" "XXXXX.sh")
+
+# Copy data from remote repository to temporary file using curl command
+curl -s -L "$SCRIPT_URL" > "$TMP_FILE"
+
+# Cheksum for downloaded file using md5sum algorithm
+Cheksum_Of_Downloaded_File=$(md5sum "$TMP_FILE" | awk '{print $1}')
+
+# printing cheksum value of downloaded file
+# echo  "$Cheksum_Of_Downloaded_File"
+
+# Compare to checksum value using if else loop
+if [ "$Cheksum_Of_Local_File"  !=  "$Cheksum_Of_Downloaded_File" ]; then
+    printf "Updating latest version"
+    cp -f "$TMP_FILE" "$ABS_SCRIPT_PATH" || printf "Unable to update the script"
+else
+     printf "Already the latest version."
+fi
+
 temp_line_count=1
-
-
 echo "--------------------------------------------"
 
 echo "ONLINE APPLICATION INSTALLATION ALERT UTILITY"
@@ -32,9 +65,9 @@ do
   line_diff=$(expr $line_count - $temp_line_count)
   
 
-# If history file is changed, i.e. number of lines are changed  
+  # If history file is changed, i.e. number of lines are changed  
 
-  if [ $temp_line_count -ne $line_count ] && [ "$install_word_found" == " install " ] && [ $line_diff -ge 5 ]
+  if [ $temp_line_count -ne $line_count ] && [ "$install_word_found" == " install " ] && [ $line_diff -ge 6 ]
 
   then
 
@@ -61,14 +94,16 @@ do
     echo "Software_Name         : $application_name"
     
     echo "Activity              : installed"
+   
+    notify-send -u critical 'Alert! NEED YOUR ATTENTION NOW!'\  "$(whoami)"' you have installed '"$application_name"' on '"$(hostname)"
 
     JSON_Output='{"OS_Type":"'$Operating_System'","Date_And_Time":"'$date_and_time'","Endpoint_Name":"'$(hostname)'","User_Name":"'$(whoami)'","Software_Name":"'$application_name'","Activity":"installed"}' 
  
 
-   # echo "$JSON_Output" | jq '.'
+  #  echo "$JSON_Output" | jq '.'
     
-    curl -s --request POST -H "Content-Type:application/json" https://633fac78d1fcddf69ca74255.mockapi.io/Installed_Software_Details  --data "${JSON_Output}"
-   
+  #curl -s --request POST -H "Content-Type:application/json"  https://2ndbnggpp6.execute-api.ap-south-1.amazonaws.com/dev/software/  --data "${JSON_Output}"
+   curl -s --request POST -H "Content-Type:application/json"  https://1epde1i5fa.execute-api.ap-south-1.amazonaws.com/dev/software/  --data "${JSON_Output}"
     # Make temporary variable equal to number of lines to run this extraction once 
 
     temp_line_count=$line_count
@@ -102,13 +137,15 @@ do
     
     echo "Activity              : remove"
 
+    notify-send -u critical 'Alert! NEED YOUR ATTENTION NOW!'\  "$(whoami)"' you have removed '"$application_name"' on '"$(hostname)"
+
  
     JSON_Output='{"OS_Type":"'$Operating_System'","Date_And_Time":"'$date_and_time'","Endpoint_Name":"'$(hostname)'","User_Name":"'$(whoami)'","Software_Name":"'$application_name'","Activity":"remove"}'
  
     # echo "$JSON_Output" | jq '.'
      
-     curl -s --request POST -H "Content-Type:application/json" https://633fac78d1fcddf69ca74255.mockapi.io/Installed_Software_Details  --data "${JSON_Output}"
-   
+   #curl -s --request POST -H "Content-Type:application/json"  https://2ndbnggpp6.execute-api.ap-south-1.amazonaws.com/dev/software/  --data "${JSON_Output}"
+   curl -s --request POST -H "Content-Type:application/json"  https://1epde1i5fa.execute-api.ap-south-1.amazonaws.com/dev/software/  --data "${JSON_Output}"
 
     # Make temporary variable equal to number of lines to run this extraction once
 
@@ -142,20 +179,21 @@ do
     echo "Software_Name         : $application_name"
 
     echo "Activity              : purge"
+
+   notify-send -u critical 'Alert! NEED YOUR ATTENTION NOW!'\  "$(whoami)"' you have purged '"$application_name"' on '"$(hostname)"
  
-    
     JSON_Output='{"OS_Type":"'$Operating_System'","Date_And_Time":"'$date_and_time'","Endpoint_Name":"'$(hostname)'","User_Name":"'$(whoami)'","Software_Name":"'$application_name'","Activity":"purge"}'
  
     # echo "$JSON_Output" | jq '.'
      
-     curl -s --request POST -H "Content-Type:application/json" https://633fac78d1fcddf69ca74255.mockapi.io/Installed_Software_Details  --data "${JSON_Output}"
-   
+   #curl -s --request POST -H "Content-Type:application/json"  https://2ndbnggpp6.execute-api.ap-south-1.amazonaws.com/dev/software/ --data "${JSON_Output}"
+    curl -s --request POST -H "Content-Type:application/json"  https://1epde1i5fa.execute-api.ap-south-1.amazonaws.com/dev/software/  --data "${JSON_Output}"
 
 
     # Make temporary variable equal to number of lines to run this extraction once
 
     temp_line_count=$line_count
 
-
   fi
+
 done
