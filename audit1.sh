@@ -1,8 +1,8 @@
 #!/bin/bash
 
 # remote repository location URL
-SCRIPT_URL='https://raw.githubusercontent.com/anuja-mohalkar/AudIT/main/audit1.sh'
-
+#SCRIPT_URL='https://raw.githubusercontent.com/anuja-mohalkar/AudIT/main/audit1.sh'
+SCRIPT_URL='https://github.com/abhishek-kiwande/Ubuntu-BashScript/main/audit1.sh'
 # Local file name which is installed on machine
 SCRIPT_LOCATION="${BASH_SOURCE[@]}"
 
